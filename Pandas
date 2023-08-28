@@ -1,0 +1,168 @@
+import pandas as pd
+
+# lendo arquivos csv
+# df = pd.read_csv("C://Users//mzq2yp//Python//Datasets//Gapminder2.csv", sep=";")
+
+# renomeando as colunas
+# df = df.rename(columns={"country":"Pais","continent": "Continente", "year": "Ano", "lifeExp": "Expectativa de Vida (em anos)", "pop": "Populacao", "gdpPercap": "PIB per Capita"})
+
+# mostra os 5 primeiros registros da base (se nao tiver nada no parenteses, se tiver, mostra o numero que tem descrito)
+# print(df.head())
+
+# mostra o numero de linhas e colunas do dataset
+# print(df.shape)
+
+# mostra o nome das colunas
+# print(df.columns)
+
+# mostra o tipo de dado das colunas
+# print(df.dtypes)
+
+# mostra os 5 ultimos registros da base (se nao tiver nada no parenteses, se tiver, mostra o numero que tem descrito)
+# print(df.tail(15))
+
+# medidas estatisticas dos valores numericos
+# print(df.describe())
+
+# agrupa por valores unicos
+# print(df["Continente"].unique())
+
+# loc realiza filtros na base de dados
+# oceania = df.loc[df["Continente"] == "Oceania"]
+# print(oceania.head())
+
+# agrupamento de dados (group by)
+# grouping = df.groupby("Continente")["Pais"].nunique()
+# print(grouping)
+
+# qual a expectativa de vida media para cada ano do meu dataset?
+# age_expect = df.groupby("Ano")["Expectativa de Vida (em anos)"].mean()
+# print(age_expect)
+
+# media do PIB
+# media_PIB = df["PIB per Capita"].mean()
+# print(media_PIB)
+
+# soma do PIB
+# soma_PIB = df["PIB per Capita"].sum()
+# print(soma_PIB)
+
+# lendo arquivos xls
+df1 = pd.read_excel("C://Users//mzq2yp//Python//Cusro_Python_Pandas_Digital_Innovation-master//datasets//Aracaju.xlsx")
+df2 = pd.read_excel("C://Users//mzq2yp//Python//Cusro_Python_Pandas_Digital_Innovation-master//datasets//Fortaleza.xlsx")
+df3 = pd.read_excel("C://Users//mzq2yp//Python//Cusro_Python_Pandas_Digital_Innovation-master//datasets//Natal.xlsx")
+df4 = pd.read_excel("C://Users//mzq2yp//Python//Cusro_Python_Pandas_Digital_Innovation-master//datasets//Recife.xlsx")
+df5 = pd.read_excel("C://Users//mzq2yp//Python//Cusro_Python_Pandas_Digital_Innovation-master//datasets//Salvador.xlsx")
+
+# juntando todos os arquivos
+df_total = pd.concat([df1, df2, df3, df4, df5])
+
+# pegando uma amostra aleatoria
+sample = df_total.sample(5)
+print(sample)
+
+# alterando o tipo de dado da coluna LojaID
+df_total["LojaID"] = df_total["LojaID"].astype("object")
+
+# verificando se existem valores faltantes
+verifica_nulo = df_total.isnull().sum()
+print(verifica_nulo)
+
+# substituindo os valores nulos pela media
+df_total["Vendas"].fillna(df_total["Vendas"].mean(), inplace=True)
+
+# substituindo os valores nulos pela media
+df_total["Vendas"].fillna(0, inplace=True)
+
+# apagando as linhas com valores nulos
+df_total.dropna(inplace=True)
+
+# apagando as linhas ocm valores nulos com base apenas em 1 coluna
+df_total.dropna(subset=["Vendas"], inplace=True)
+
+# removendo linhas que estejam com valores faltantes em todas as colunas
+df_total.dropna(how="all", inplace=True)
+
+# criando a coluna de receita
+df_total["Receita"] = df_total["Vendas"].mul(df_total["Qtde"])
+print(df_total.head())
+
+# criando a coluna Receita/Vendas
+df_total["Receita/Vendas"] = df_total["Receita"] / df_total["Vendas"]
+
+# retornando a maior receita (max)
+receita_max = df_total["Receita"].max()
+print(receita_max)
+
+# retornando a menor receita (min)
+receita_min = df_total["Receita"].min()
+print(receita_min)
+
+# nlarger - escolher as top 3 com base na coluna receita
+top3 = df_total.nlargest(3, "Receita")
+print(top3)
+
+# nsmallest - escolher as bottom 3 com base na coluna receita
+bottom3 = df_total.nsmallest(3, "Receita")
+print(bottom3)
+
+# agrupamento por cidade
+group_cidade = df_total.groupby("Cidade")["Receita"].sum()
+print(group_cidade)
+
+# ordenando o conjunto de dados
+top10 = df_total.sort_values("Receita", ascending=False).head(10)
+print(top10)
+
+# transformando a coluna de data em tipo inteiro
+df_total["Data"] = df_total["Data"].astype("int64")
+
+# transformando a coluna data em data
+df_total["Data"] = pd.to_datetime(df_total["Data"])
+
+# verificando o tipo de dado de cada coluna
+print(df_total.dtypes)
+
+# agrupamento por ano
+group_ano = df_total.groupby(df_total["Data"].dt.year)["Receita"].sum()
+print(group_ano)
+
+# criando uma nova coluna com o ano
+df_total["Ano_Venda"] = df_total["Data"].dt.year
+
+print(df_total.sample(5))
+
+# extraindo o mes e o dia
+df_total["mes_venda"], df_total["dia_venda"] = df_total["Data"].dt.month, df_total["Data"].dt.day
+print(df_total.sample(5))
+
+# retornando a data mais antiga
+df_total["Data"].min()
+
+# calculando a diferença em dias
+df_total["diferenca_dias"] = df_total["Data"] - df_total["Data"].min()
+print(df_total.sample(5))
+
+# criando uma coluna de trimestre
+df_total["trimestre_venda"] = df_total["Data"].dt.quarter
+print(df_total.sample(5))
+
+# filtrando as vendas de 2019 do mes de março
+vendas_marco_19 = df_total.loc[(df_total["Data"].dt.year == 2019) & (df_total["Data"].dt.month == 3)]
+print(vendas_marco_19)
+
+# metodo value counts - faz um count agrupado
+df_total["LojaID"].value_counts(ascending=False)
+
+# grafico de barras
+graph_bar = df_total["LojaID"].value_counts(ascending=False).plot.bar
+print(graph_bar)
+
+# grafico de barras horizontais
+# para retirar a linha de titulo eh so colocar um ; no final
+graph_barh = df_total["LojaID"].value_counts(ascending=False).plot.barh()
+print(graph_barh)
+
+# grafico de pizza
+graph_pie = df_total.groupby(df_total["Data"].dt.year)["Receita"].sum().plot.pie
+print(graph_pie)
